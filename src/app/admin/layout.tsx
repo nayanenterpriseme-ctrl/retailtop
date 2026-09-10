@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useAuth, AUTHORIZED_ADMIN_EMAIL } from "@/lib/AuthContext";
+import { usePwa } from "@/lib/PwaContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -16,11 +17,13 @@ import {
   Menu,
   X,
   CalendarDays,
-  RotateCcw
+  RotateCcw,
+  Download
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout, isLockerLocked, lockLocker, unlockLocker } = useAuth();
+  const { promptInstall, isInstalled } = usePwa();
   const pathname = usePathname();
   const [unlockPass, setUnlockPass] = useState("");
   const [unlockError, setUnlockError] = useState("");
@@ -175,6 +178,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
+          <button
+            onClick={promptInstall}
+            className="w-full mb-2.5 px-2.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-mono flex items-center justify-center gap-2 transition cursor-pointer"
+            title="Install POS Application"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>{isInstalled ? "App Installed" : "Install App"}</span>
+          </button>
+
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={lockLocker}
@@ -213,6 +225,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={promptInstall}
+              className="px-2.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-mono flex items-center gap-1.5 transition cursor-pointer"
+              title="Install POS Application"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{isInstalled ? "Installed" : "Install App"}</span>
+            </button>
+
             <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-slate-800/80 border border-slate-700/60 rounded-full text-xs font-mono text-slate-300">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Admin: {AUTHORIZED_ADMIN_EMAIL}</span>

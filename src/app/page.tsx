@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useAuth, AUTHORIZED_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD } from "@/lib/AuthContext";
+import { usePwa } from "@/lib/PwaContext";
 import { 
   ShieldCheck, 
   Lock, 
@@ -10,12 +11,14 @@ import {
   EyeOff, 
   AlertOctagon, 
   Sparkles, 
-  ShieldAlert
+  ShieldAlert,
+  Download
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const { user, login, loading } = useAuth();
+  const { promptInstall, isInstalled } = usePwa();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -54,18 +57,22 @@ export default function HomePage() {
       const res = await login(email, password);
       if (res.success) {
         setIsUnlocked(true);
-        // Short pause to show the vault unlock animation
+        // Soft navigate
+        router.push("/admin");
+        // Robust fallback if soft navigation is delayed
         setTimeout(() => {
-          router.push("/admin");
-        }, 600);
+          if (typeof window !== "undefined" && window.location.pathname !== "/admin") {
+            window.location.href = "/admin";
+          }
+        }, 700);
       } else {
         const nextFailed = failedAttempts + 1;
         setFailedAttempts(nextFailed);
         setErrorMessage(res.error || "Authentication failed.");
 
-        if (nextFailed >= 4) {
-          setLockoutTimer(30);
-          setErrorMessage("SECURITY LOCKOUT: Too many unauthorized attempts. Terminal locked for 30 seconds.");
+        if (nextFailed >= 5) {
+          setLockoutTimer(20);
+          setErrorMessage("SECURITY LOCKOUT: Multiple unauthorized attempts. Terminal locked for 20 seconds.");
         }
       }
     } catch (err: unknown) {
@@ -107,13 +114,23 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 text-xs font-mono text-slate-400">
-          <span className="flex items-center gap-1.5 text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            FIREBASE DATABASE SECURED
-          </span>
-          <span className="text-slate-600">|</span>
-          <span>ADMIN ID: stacklyn96</span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={promptInstall}
+            className="px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-mono flex items-center gap-1.5 transition shadow-sm"
+            title="Install POS Application"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>{isInstalled ? "App Installed" : "Install App"}</span>
+          </button>
+
+          <div className="hidden md:flex items-center gap-4 text-xs font-mono text-slate-400">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              FIREBASE SECURED
+            </span>
+          </div>
         </div>
       </header>
 
@@ -153,7 +170,7 @@ export default function HomePage() {
 
             {/* Error & Security Alerts */}
             {errorMessage && (
-              <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs sm:text-sm flex items-start gap-3 animate-shake">
+              <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs sm:text-sm flex items-start gap-3">
                 <AlertOctagon className="w-5 h-5 shrink-0 text-red-400 mt-0.5" />
                 <div>
                   <p className="font-semibold">Security Alert</p>
@@ -214,7 +231,7 @@ export default function HomePage() {
               <button
                 type="submit"
                 disabled={lockoutTimer > 0 || isSubmitting}
-                className="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 text-sm tracking-wide transition-all transform active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 text-sm tracking-wide transition-all transform active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2 text-slate-950">

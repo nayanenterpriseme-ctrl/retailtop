@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="POS Vault Locker">
+  <rect width="512" height="512" rx="106" fill="#020617"/>
+  <rect x="64" y="64" width="384" height="384" rx="85" fill="#0f172a" stroke="#06b6d4" stroke-width="16"/>
+  <path d="M171 229v-43c0-48 38-85 85-85s85 37 85 85v43" fill="none" stroke="#67e8f9" stroke-width="32" stroke-linecap="round"/>
+  <rect x="128" y="208" width="256" height="192" rx="43" fill="#06b6d4"/>
+  <circle cx="256" cy="296" r="24" fill="#020617"/>
+  <path d="M256 320v35" stroke="#020617" stroke-width="21" stroke-linecap="round"/>
+</svg>
